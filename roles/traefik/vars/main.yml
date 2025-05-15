@@ -28,6 +28,9 @@ traefik:
     enabled: true
   env:
     - "# Example File."
+# certificatesResolvers:
+#  letsencrypt: ... Just put your normal traefik config here, i pass it to the traefik container
+  
 
 CustomErrorPages:
   enabled: true
