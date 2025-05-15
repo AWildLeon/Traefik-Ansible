@@ -1,0 +1,6 @@
+---
+- name: Deploy Traefik via Docker Compose
+  hosts: all
+  become: true
+  roles:
+    - traefik

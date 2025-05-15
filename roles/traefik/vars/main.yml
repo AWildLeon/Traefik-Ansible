@@ -1,0 +1,56 @@
+---
+install_path: /docker/traefik
+
+traefik:
+  error_level: "ERROR" # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  verify_ssl_certs: false
+  api:
+    dashboard: false
+  image_tag: "3"
+  enable_ipv6: true
+  proxy_subnet: 10.200.0.0/29
+  uid: 1000
+  gid: 1000
+  http: 
+    enabled: true
+    endpoint: web
+    port: 80
+  https:
+    enabled: true
+    port: 443
+    redirect_http: true
+    endpoint: websecure
+  http2:
+    max_concurrent_streams: 250
+    enabled: true
+  http3: 
+    port: 443
+    enabled: true
+  env:
+    - "# Example File."
+
+CustomErrorPages:
+  enabled: true
+  image_tag: "alpine"
+  endpoint: websecure
+  tls: true
+  ErrorHtmlArchive: "https://github.com/tarampampam/error-pages/releases/download/v3.3.2/error-pages-static.zip"
+  enable_security_headers: true
+  ErrorPages:
+    - status: "400"
+      query: "/connection/400.html"
+    - status: "401"
+      query: "/connection/401.html"
+    - status: "403"
+      query: "/connection/403.html"
+    - status: "404"
+      query: "/connection/404.html"
+    - status: "500"
+      query: "/connection/500.html"
+    - status: "502"
+      query: "/connection/502.html"
+    - status: "503"
+      query: "/connection/503.html"
+    - status: "504"
+      query: "/connection/504.html"
+

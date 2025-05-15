@@ -1,0 +1,66 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+log:
+  level: {{ traefik.error_level | default('ERROR') }}
+  format: common
+
+api:
+  dashboard: {{ traefik.api.dashboard | default(false) }}
+
+entryPoints:
+  {{ traefik.http.endpoint }}:
+    address: :{{ traefik.http.port }}
+{% if traefik.https.enabled and traefik.https.redirect_http %}
+    http:
+      redirections:
+        entryPoint:
+          to: {{ traefik.https.endpoint }}
+          scheme: https
+{% endif %}
+
+{% if traefik.https.enabled %}
+  {{ traefik.https.endpoint }}:
+    address: :{{ https.port | default(443) }}
+{% if traefik.http2.enabled %}
+    http2:
+      maxConcurrentStreams: {{ traefik.http2.max_concurrent_streams | default(250) }}
+{% endif %}
+{% if traefik.http3.enabled %}
+    http3:
+      advertisedPort: {{ traefik.http3.port | default(443) }}
+{% endif %}
+{% endif %}    
+
+{% if traefik.certificatesResolvers is defined %}
+certificatesResolvers:
+{% for name, resolver in traefik.certificatesResolvers.items() %}
+  {{ name }}:
+{% for key, value in resolver.items() %}
+{% if key == "dnsChallenge" %}
+    dnsChallenge:
+{% for dnskey, dnsval in value.items() %}
+      {{ dnskey }}: {{ dnsval }}
+{% endfor %}
+{% else %}
+    {{ key }}: {{ value }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}
+
+
+serversTransport:
+  insecureSkipVerify: {{ traefik.verify_ssl_certs | default(false) }}
+
+providers:
+  docker:
+    exposedByDefault: false
+    endpoint: "tcp://{{ traefik.proxy_subnet | ansible.utils.ipaddr(2) | ansible.utils.ipaddr('address') }}:2375"
+    watch: true
+  file:
+    directory: /etc/traefik
+    watch: true
+
+

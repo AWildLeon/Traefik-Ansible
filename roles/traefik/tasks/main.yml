@@ -1,0 +1,68 @@
+---
+- name: Set Unprivileged Ports
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_unprivileged_port_start
+    value: 0
+    state: present
+    sysctl_file: /etc/sysctl.d/ansible_unprivileged_port_start.conf
+    reload: yes
+  when: ansible_distribution != "NixOS" and (dont_modify_sysctl | default(false)) == false
+
+- name: Create Traefik config directory
+  file:
+    path: "{{ install_path }}"
+    state: directory
+    mode: '0755'
+
+- name: Create Traefik data directory
+  file:
+    path: "{{ install_path }}/data"
+    state: directory
+    owner: 0
+    group: 0
+    mode: '0755'
+
+- name: Create Traefik data sub-directory's
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ traefik.uid }}"
+    group: "{{ traefik.gid }}"
+    mode: '0755'
+  loop:
+    - "{{ install_path }}/data/traefik"
+    - "{{ install_path }}/data/traefik-plugins"
+
+- name: Copy Docker Compose file
+  template:
+    src: compose.yml.j2
+    dest: "{{ install_path }}/compose.yml"
+    mode: '0644'
+  notify: deploy traefik
+
+- name: Copy Traefik env file
+  template:
+    src: traefik.env.j2
+    dest: "{{ install_path }}/traefik.env"
+    mode: '0644'
+  notify: deploy traefik
+
+- name: Copy Traefik config file
+  template:
+    src: traefik_config.yml.j2
+    dest: "{{ install_path }}/data/traefik/traefik.yml"
+    mode: '0644'
+  notify: restart traefik
+
+- name: Copy securityheaders.yml file
+  copy:
+    src: traefik/securityheaders.yml
+    dest: "{{ install_path }}/data/traefik/securityheaders.yml"
+    owner: "{{ traefik.uid }}"
+    group: "{{ traefik.gid }}"
+    mode: '0644'
+  notify: restart traefik
+
+- name: CustomErrorPages
+  include_tasks: CustomErrorPages.yml
+  when: CustomErrorPages is defined and CustomErrorPages.enabled | default(false)
