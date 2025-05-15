@@ -1,0 +1,10 @@
+---
+- name: deploy traefik
+  include_tasks: deploy_traefik.yml
+
+- name: restart traefik
+  community.docker.docker_compose_v2:
+    project_src: "{{ install_path }}"
+    state: restarted
+  # Run only if deploy traefik was not run
+  when: traefik_recreated is not defined or not traefik_recreated

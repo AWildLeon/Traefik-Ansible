@@ -1,0 +1,41 @@
+# WARNING: This file is auto-generated. Do not edit it directly.
+
+---
+services:
+  traefik:
+
+    image: traefik
+    env_file: traefik.env
+    restart: always
+    container_name: traefik
+    user: {{ traefik.uid }}:{{ traefik.gid }}
+    network_mode: host
+    volumes:
+      - {{install_path}}/data/traefik:/etc/traefik
+      - {{install_path}}/data/traefik-plugins:/plugins-storage
+    
+  traefik-socketproxy:
+    image: ghcr.io/tecnativa/docker-socket-proxy:latest@sha256:9e4b9e7517a6b660f2cc903a19b257b1852d5b3344794e3ea334ff00ae677ac2
+    command: -f /usr/local/etc/haproxy/haproxy.cfg -q
+    environment:
+      - CONTAINERS=1 # Allow access to viewing containers
+      - POST=0 # Disallow any POST operations (effectively read-only)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      traefik-socketproxy:
+        ipv4_address: {{ traefik.proxy_subnet | ansible.utils.ipaddr(2) | ansible.utils.ipaddr('address') }}
+    restart: unless-stopped
+
+
+networks:
+  traefik-socketproxy:
+    driver: bridge
+    internal: true
+    ipam:
+      driver: default
+      config:
+        - subnet: {{ traefik.proxy_subnet }}
+
+  default:
+    enable_ipv6: {{ traefik.enable_ipv6 }}

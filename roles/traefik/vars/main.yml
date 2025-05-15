@@ -1,0 +1,32 @@
+---
+install_path: /docker/traefik
+
+traefik:
+  error_level: "ERROR" # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  verify_ssl_certs: false
+  api:
+    dashboard: false
+  image_tag: "3"
+  enable_ipv6: true
+  proxy_subnet: 10.200.0.0/29
+  uid: 1000
+  gid: 1000
+  http: 
+    enabled: true
+    endpoint: web
+    port: 80
+  https:
+    enabled: true
+    port: 443
+    redirect_http: true
+    endpoint: websecure
+  http2:
+    max_concurrent_streams: 250
+    enabled: true
+  http3: 
+    port: 443
+    enabled: true
+  env:
+    - "# Example File."
+
+
