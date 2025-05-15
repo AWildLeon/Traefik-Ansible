@@ -1,0 +1,11 @@
+# WARNING: This file is auto-generated. Do not edit it manually.
+
+http:
+  middlewares:
+    securityheaders:
+      headers:
+        stsSeconds: 15552000
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+        stsPreload: true
+        stsIncludeSubdomains: true

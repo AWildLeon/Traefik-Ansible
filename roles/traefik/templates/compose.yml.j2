@@ -3,7 +3,6 @@
 ---
 services:
   traefik:
-
     image: traefik
     env_file: traefik.env
     restart: always
@@ -26,6 +25,34 @@ services:
       traefik-socketproxy:
         ipv4_address: {{ traefik.proxy_subnet | ansible.utils.ipaddr(2) | ansible.utils.ipaddr('address') }}
     restart: unless-stopped
+
+{% if CustomErrorPages is defined %}
+  CustomErrorPages:
+    image: nginx:{{ CustomErrorPages.image_tag | default('alpine') }}
+    read_only: true
+    volumes:
+      - {{ install_path }}/data/CustomErrorPages/errors:/usr/share/nginx/error-pages:ro
+      - {{ install_path }}/data/CustomErrorPages/default.conf:/etc/nginx/conf.d/default.conf:ro
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.CustomErrorPages.entrypoints={{ CustomErrorPages.endpoint | default(traefik.https.endpoint) }}
+      - traefik.http.routers.CustomErrorPages.rule=HostRegexp(`.+`)
+      - traefik.http.routers.CustomErrorPages.priority=1
+{% if CustomErrorPages.tls %}
+      - traefik.http.routers.CustomErrorPages.tls=true
+{% endif %}
+{% if CustomErrorPages.enable_security_headers %}
+      - traefik.http.routers.CustomErrorPages.middlewares=securityheaders@file
+{% endif %}
+      - traefik.http.services.CustomErrorPages.loadbalancer.server.port=80
+      - traefik.http.middlewares.CustomErrorPages.errors.status={{ CustomErrorPages.ErrorPages | map(attribute='status') | join(',') }}
+      - traefik.http.middlewares.CustomErrorPages.errors.service=Error
+      - traefik.http.middlewares.CustomErrorPages.errors.query=/{status}.html
+    restart: always
+{% endif %}
 
 
 networks:

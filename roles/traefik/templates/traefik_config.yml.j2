@@ -23,14 +23,14 @@ entryPoints:
 {% if traefik.https.enabled %}
   {{ traefik.https.endpoint }}:
     address: :{{ https.port | default(443) }}
-    {% if traefik.http2.enabled %}
+{% if traefik.http2.enabled %}
     http2:
       maxConcurrentStreams: {{ traefik.http2.max_concurrent_streams | default(250) }}
-    {% endif %}
-    {% if traefik.http3.enabled %}
+{% endif %}
+{% if traefik.http3.enabled %}
     http3:
       advertisedPort: {{ traefik.http3.port | default(443) }}
-    {% endif %}
+{% endif %}
 {% endif %}    
 
 {% if traefik.certificatesResolvers is defined %}

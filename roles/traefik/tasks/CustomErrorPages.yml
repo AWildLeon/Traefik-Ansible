@@ -1,0 +1,51 @@
+---
+
+- name: Create CustomErrorPages data sub-directory's
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ traefik.uid }}"
+    group: "{{ traefik.gid }}"
+    mode: '0755'
+  loop:
+    - "{{ install_path }}/data/CustomErrorPages"
+    - "{{ install_path }}/data/CustomErrorPages/errors"
+
+- name: Copy CustomErrorPages default.conf file
+  template:
+    src: CustomErrorPages/nginx.conf.j2
+    dest: "{{ install_path }}/data/CustomErrorPages/default.conf"
+    owner: "{{ traefik.uid }}"
+    group: "{{ traefik.gid }}"
+    mode: '0644'
+  notify: deploy traefik
+
+- name: check if the error folder is empty
+  ansible.builtin.command: ls -A {{ install_path }}/data/CustomErrorPages/errors
+  register: error_folder
+  changed_when: false
+  failed_when: false
+
+- name: Download CustomErrorPages tarball
+  ansible.builtin.get_url:
+    url: "{{ CustomErrorPages.ErrorHtmlArchive }}"
+    dest: "{{ install_path }}/data/CustomErrorPages/errors.tar.gz"
+    mode: '0644'
+  when: CustomErrorPages.ErrorHtmlArchive is defined and CustomErrorPages.ErrorHtmlArchive != "" and error_folder.stdout == ""
+  register: download_customerrorpages_tarball
+  until: download_customerrorpages_tarball is succeeded
+  retries: 3
+  delay: 5
+
+- name: Extract CustomErrorPages tarball
+  ansible.builtin.unarchive:
+    src: "{{ install_path }}/data/CustomErrorPages/errors.tar.gz"
+    dest: "{{ install_path }}/data/CustomErrorPages/errors"
+    remote_src: yes
+  when: download_customerrorpages_tarball is succeeded and error_folder.stdout == ""
+
+- name: Remove CustomErrorPages tarball
+  ansible.builtin.file:
+    path: "{{ install_path }}/data/CustomErrorPages/errors.tar.gz"
+    state: absent
+  when: download_customerrorpages_tarball is succeeded and error_folder.stdout == ""

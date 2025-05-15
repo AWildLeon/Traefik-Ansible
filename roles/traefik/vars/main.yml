@@ -29,4 +29,28 @@ traefik:
   env:
     - "# Example File."
 
+CustomErrorPages:
+  enabled: true
+  image_tag: "alpine"
+  endpoint: websecure
+  tls: true
+  ErrorHtmlArchive: "https://github.com/tarampampam/error-pages/releases/download/v3.3.2/error-pages-static.zip"
+  enable_security_headers: true
+  ErrorPages:
+    - status: "400"
+      query: "/connection/400.html"
+    - status: "401"
+      query: "/connection/401.html"
+    - status: "403"
+      query: "/connection/403.html"
+    - status: "404"
+      query: "/connection/404.html"
+    - status: "500"
+      query: "/connection/500.html"
+    - status: "502"
+      query: "/connection/502.html"
+    - status: "503"
+      query: "/connection/503.html"
+    - status: "504"
+      query: "/connection/504.html"
 

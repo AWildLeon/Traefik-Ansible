@@ -24,7 +24,7 @@
 
 - name: Create Traefik data sub-directory's
   file:
-    path: " {{ item }}"
+    path: "{{ item }}"
     state: directory
     owner: "{{ traefik.uid }}"
     group: "{{ traefik.gid }}"
@@ -53,3 +53,16 @@
     dest: "{{ install_path }}/data/traefik/traefik.yml"
     mode: '0644'
   notify: restart traefik
+
+- name: Copy securityheaders.yml file
+  copy:
+    src: traefik/securityheaders.yml
+    dest: "{{ install_path }}/data/traefik/securityheaders.yml"
+    owner: "{{ traefik.uid }}"
+    group: "{{ traefik.gid }}"
+    mode: '0644'
+  notify: restart traefik
+
+- name: CustomErrorPages
+  include_tasks: CustomErrorPages.yml
+  when: CustomErrorPages is defined and CustomErrorPages.enabled | default(false)
