@@ -36,6 +36,7 @@
   until: download_customerrorpages_tarball is succeeded
   retries: 3
   delay: 5
+  timeout: 60
 
 - name: Extract CustomErrorPages tarball
   ansible.builtin.unarchive:
