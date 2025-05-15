@@ -26,7 +26,7 @@ services:
         ipv4_address: {{ traefik.proxy_subnet | ansible.utils.ipaddr(2) | ansible.utils.ipaddr('address') }}
     restart: unless-stopped
 
-{% if CustomErrorPages is defined %}
+{% if CustomErrorPages is defined and CustomErrorPages.enabled %}
   CustomErrorPages:
     image: nginx:{{ CustomErrorPages.image_tag | default('alpine') }}
     read_only: true
