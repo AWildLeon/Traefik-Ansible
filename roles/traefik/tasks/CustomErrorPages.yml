@@ -1,7 +1,7 @@
 ---
 
 - name: Create CustomErrorPages data sub-directory's
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ traefik.uid }}"
@@ -12,7 +12,7 @@
     - "{{ install_path }}/data/CustomErrorPages/errors"
 
 - name: Copy CustomErrorPages default.conf file
-  template:
+  ansible.builtin.template:
     src: CustomErrorPages/nginx.conf.j2
     dest: "{{ install_path }}/data/CustomErrorPages/default.conf"
     owner: "{{ traefik.uid }}"
@@ -20,7 +20,7 @@
     mode: '0644'
   notify: deploy traefik
 
-- name: check if the error folder is empty
+- name: Check if the error folder is empty
   ansible.builtin.command: ls -A {{ install_path }}/data/CustomErrorPages/errors
   register: error_folder
   changed_when: false
@@ -42,7 +42,7 @@
   ansible.builtin.unarchive:
     src: "{{ install_path }}/data/CustomErrorPages/errors.tar.gz"
     dest: "{{ install_path }}/data/CustomErrorPages/errors"
-    remote_src: yes
+    remote_src: true
   when: download_customerrorpages_tarball is succeeded and error_folder.stdout == ""
 
 - name: Remove CustomErrorPages tarball
