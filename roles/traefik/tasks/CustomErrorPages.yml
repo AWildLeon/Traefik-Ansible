@@ -43,10 +43,18 @@
     src: "{{ install_path }}/data/CustomErrorPages/errors.tar.gz"
     dest: "{{ install_path }}/data/CustomErrorPages/errors"
     remote_src: true
-  when: download_customerrorpages_tarball is succeeded and error_folder.stdout == ""
+  when: >
+    CustomErrorPages.ErrorHtmlArchive is defined and
+    CustomErrorPages.ErrorHtmlArchive != "" and
+    download_customerrorpages_tarball is succeeded and
+    error_folder.stdout == ""
 
 - name: Remove CustomErrorPages tarball
   ansible.builtin.file:
     path: "{{ install_path }}/data/CustomErrorPages/errors.tar.gz"
     state: absent
-  when: download_customerrorpages_tarball is succeeded and error_folder.stdout == ""
+  when: >
+    CustomErrorPages.ErrorHtmlArchive is defined and
+    CustomErrorPages.ErrorHtmlArchive != "" and
+    download_customerrorpages_tarball is succeeded and
+    error_folder.stdout == ""
