@@ -37,22 +37,25 @@ entryPoints:
 certificatesResolvers:
 {% for name, resolver in traefik.certificatesResolvers.items() %}
   {{ name }}:
-{% for key, value in resolver.items() %}
-{% if key == "dnsChallenge" %}
-    dnsChallenge:
-{% for dnskey, dnsval in value.items() %}
-      {{ dnskey }}: {{ dnsval }}
-{% endfor %}
-{% else %}
-    {{ key }}: {{ value }}
-{% endif %}
-{% endfor %}
+{%   for resolver_type, settings in resolver.items() %}
+    {{ resolver_type }}:
+{%     for key, value in settings.items() %}
+{%       if key == "dnsChallenge" %}
+      dnsChallenge:
+{%         for dnskey, dnsval in value.items() %}
+        {{ dnskey }}: {{ dnsval }}
+{%         endfor %}
+{%       else %}
+      {{ key }}: {{ value }}
+{%       endif %}
+{%     endfor %}
+{%   endfor %}
 {% endfor %}
 {% endif %}
 
 
 serversTransport:
-  insecureSkipVerify: {{ traefik.verify_ssl_certs | default(false) }}
+  insecureSkipVerify: {{ not traefik.verify_ssl_certs | default(false) }}
 
 providers:
   docker:
