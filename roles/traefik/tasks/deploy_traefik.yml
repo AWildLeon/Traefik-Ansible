@@ -2,11 +2,12 @@
 - name: Pull Traefik image
   community.docker.docker_compose_v2_pull:
     project_src: "{{ install_path }}"
-    
+
 - name: Docker Compose Traefik
   community.docker.docker_compose_v2:
-   project_src: "{{ install_path }}"
-   remove_orphans: true
+    project_src: "{{ install_path }}"
+    remove_orphans: true
+    recreate: always
 
 - name: Set traefik_recreated
   ansible.builtin.set_fact:
