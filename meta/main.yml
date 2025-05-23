@@ -1,0 +1,22 @@
+---
+galaxy_info:
+  author: Leon Hubrich
+  description: Deploys Traefik using Docker Compose
+  license: AGPL-3.0
+  min_ansible_version: "2.17"
+  platforms:
+  - name: Fedora
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Debian
+    versions:
+    - all
+  galaxy_tags:
+  - traefik
+  - reverseproxy
+  - docker
+
+dependencies: []
