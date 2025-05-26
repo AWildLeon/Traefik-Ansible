@@ -1,5 +1,6 @@
 ---
 galaxy_info:
+  role_name: traefik
   author: Leon Hubrich
   description: Deploys Traefik using Docker Compose
   license: AGPL-3.0
