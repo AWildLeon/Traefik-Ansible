@@ -4,9 +4,8 @@ name: Deploy Collection
 # Trigger the workflow however you prefer
 on:
   release:
-    types:
-      - published
-
+    types: [published]
+    
 jobs:
   deploy:
     runs-on: ubuntu-latest
